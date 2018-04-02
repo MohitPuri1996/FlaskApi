@@ -1,9 +1,21 @@
 {%extends 'ui.html'%}
+
+{%block body%}
+{% for item in response%}
 <div class="card">
-  <h5 class="card-header">Featured</h5>
-  <div class="card-body">
-    <h5 class="card-title">Special title treatment</h5>
-    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
+ 	 <h1 style="color:red">{{item}}</h1>
+	  	{% for sub_item in response[item] %}
+	  	<div class="row">
+	  		<div class="col-sm-6">
+	  		<h4>{{sub_item}}</h4>
+	  		<a href="#" class="btn btn-warning">Add</a>
+	  		<hr>
+	  		</div>
+	  	</div>
+	
+	{%endfor%}
+
+	</div>
+	<br>
+	{%endfor%}
+{%endblock%}

@@ -123,36 +123,13 @@ class Category(Resource):
 		connection=pymongo.MongoClient('mongodb://localhost')
 		db=connection.ResData
 		records=db.catwise
-		details=records.find({"restaurant_name":name})
-		return sliced
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		print name
+		details=records.find({"_id.restaurant_name":name})
+		data={}
+		for item in details:
+			data["menu"]=item["data"]
+			print item["_id"]
+		return data
 
 
 		'''
@@ -176,7 +153,7 @@ class Category(Resource):
 api.add_resource(Restaurants,'/page=<int:page>')
 api.add_resource(Restaurant,'/<id_>')
 api.add_resource(Categories,'/categories/page=<int:page>')
-
+api.add_resource(Category,'/category/<string:name>')
 
 
 if __name__=='__main__':

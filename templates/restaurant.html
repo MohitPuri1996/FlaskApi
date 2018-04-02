@@ -1,0 +1,15 @@
+{%extends 'ui.html'%}
+
+
+{%block body%}
+<div class="card">
+	{% for each_restro in response%}
+  <h5 class="card-header">{{each_restro["restaurant_name"]}}</h5>
+  <div class="card-body">
+    Address:<h5 class="card-title">{{each_restro["address"]}}, {{each_restro["phone"]}}</h5>
+    <a href="/menu/{{each_restro["restaurant_name"]}}" class="btn btn-primary">MENU</a>
+  </div>
+</div>
+<hr>
+{%endfor%}
+{%endblock%}
