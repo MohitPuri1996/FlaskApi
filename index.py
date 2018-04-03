@@ -4,27 +4,16 @@ import pymongo,json,pprint
 
 app=Flask(__name__)
 api=Api(app)
-
-firstEntry=False
-endpage_till_now=0
-total_length=0
-connection=None
-records=None
-db=None
-current_page=0
-@app.route('/processing')
-def processing():
-	print current_page
-	
-#from here pure api		
-
-#for all
+##### ALL RESTAURANTS DATA ########
+connection=pymongo.MongoClient('mongodb://localhost')
 class Restaurants(Resource):
 	def get(self,page):
-		connection=pymongo.MongoClient('mongodb://localhost')
+		global connection
 		db=connection.ZomatoResDetails
 		records=db.tempdata
-		data=records.find().limit(1000)
+		if page==0:
+			page=1
+		data=records.find().skip(page*20-20).limit(20)
 		print data
 		d=[]
 		for item in data:
@@ -37,14 +26,14 @@ class Restaurants(Resource):
 			restaurants={}
 			restaurants["count"]=len(d)
 			restaurants["data"]=d
-		connection.close()
-		temp=d[page*20:page*20+20]		
-		return jsonify({'restaurants':temp})
+		connection.close()	
+		print len(d)
+		return jsonify({'restaurants':d})
 
-#for one
+###### Search By ID ######
 class Restaurant(Resource):
 	def get(self,id_):
-		connection=pymongo.MongoClient('mongodb://localhost')
+		global connection
 		db=connection.ZomatoResDetails
 		records=db.tempdata
 		data=records.find({"uniqueid":id_})
@@ -62,12 +51,10 @@ class Restaurant(Resource):
 
 class Categories(Resource):		
 	def get(self,page):
-		connection=pymongo.MongoClient('mongodb://localhost')
+		global connection
 		db=connection.ResData
 		records=db.catwise
-		total_length=records.find({}).count()
-		print str(total_length) +"totl"
-		data=records.find({}).limit(total_length)
+		data=records.find().skip(page*20-20).limit(20)
 		endpage_till_now=4500
 		cat_data=[]
 		restaurants_details=[]
@@ -87,17 +74,13 @@ class Categories(Resource):
 						print each_sub_category["category"]
 						sets.add(each_sub_category["category"])
 					except:
-						pass	#print each_sub_category["category"]
+						pass
 			else:
 				pass
-			#print sets
 			dictionary={}
 			for each_item in sets:
 				dictionary[each_item]=[]
-
-			#print type(dictionary[s[0]["category"]])
 			count=0
-			
 			full=[]
 			if len(each_object["Categories"]) > 2:
 				try:
@@ -116,10 +99,9 @@ class Categories(Resource):
 		print len(sliced)
 		return sliced
 
-
-
 class Category(Resource):		
 	def get(self,name):
+		print "category"
 		connection=pymongo.MongoClient('mongodb://localhost')
 		db=connection.ResData
 		records=db.catwise
@@ -129,28 +111,10 @@ class Category(Resource):
 		for item in details:
 			data["menu"]=item["data"]
 			print item["_id"]
-		return data
+		connection.close()
+		return cat_data
 
-
-		'''
-		d=[]
-		for item in data:
-			d.append({"restaurant_name":item["restaurant_name"],
-				"address":item["address"],
-				"phone":item["phone"],
-				"area":item["area"],
-				"city":item["city"],
-				"state":item["state"]
-				})
-		return jsonify({'data':d})
-		'''
-
-
-
-
-
-
-api.add_resource(Restaurants,'/page=<int:page>')
+api.add_resource(Restaurants,'/restaurants/page=<int:page>')
 api.add_resource(Restaurant,'/<id_>')
 api.add_resource(Categories,'/categories/page=<int:page>')
 api.add_resource(Category,'/category/<string:name>')
@@ -158,13 +122,6 @@ api.add_resource(Category,'/category/<string:name>')
 
 if __name__=='__main__':
 	app.run(debug=True)
-
-
-
-
-
-
-
 
 
 
